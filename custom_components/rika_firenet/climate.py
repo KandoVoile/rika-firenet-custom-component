@@ -91,11 +91,13 @@ class RikaFirenetStoveClimate(RikaFirenetEntity, ClimateEntity):
         return UnitOfTemperature.CELSIUS
 
     def set_temperature(self, **kwargs):
-        temperature = int(kwargs.get(ATTR_TEMPERATURE))
-        _LOGGER.info('set_temperature(): ' + str(temperature))
+        temperature_value = kwargs.get(ATTR_TEMPERATURE)
 
-        if kwargs.get(ATTR_TEMPERATURE) is None:
+        if temperature_value is None:
             return
+
+        temperature = int(temperature_value)
+        _LOGGER.info('set_temperature(): ' + str(temperature))
 
         if not self._stove.is_stove_on():
             return
