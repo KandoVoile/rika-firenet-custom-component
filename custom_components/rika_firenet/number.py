@@ -128,12 +128,12 @@ class RikaFirenetStoveNumber(RikaFirenetEntity, NumberEntity):
         elif self._number == "heating power":
             self._stove.set_heating_power(int(value))
         elif self._number == "convection fan1 level":
-            return self._stove.set_convection_fan1_level(int(value))
+            self._stove.set_convection_fan1_level(int(value))
         elif self._number == "convection fan1 area":
-            return self._stove.set_convection_fan1_area(int(value))
+            self._stove.set_convection_fan1_area(int(value))
         elif self._number == "convection fan2 level":
-            return self._stove.set_convection_fan2_level(int(value))
+            self._stove.set_convection_fan2_level(int(value))
         elif self._number == "convection fan2 area":
-            return self._stove.set_convection_fan2_area(int(value))
+            self._stove.set_convection_fan2_area(int(value))
 
         self.schedule_update_ha_state()
