@@ -12,6 +12,7 @@ from .const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=10)
 SCAN_INTERVAL = timedelta(seconds=15)
+REQUEST_TIMEOUT = 10
 
 
 class RikaFirenetCoordinator(DataUpdateCoordinator):
@@ -59,7 +60,9 @@ class RikaFirenetCoordinator(DataUpdateCoordinator):
             'password': self._password
         }
 
-        postResponse = self._client.post('https://www.rika-firenet.com/web/login', data)
+        postResponse = self._client.post(
+            'https://www.rika-firenet.com/web/login', data, timeout=REQUEST_TIMEOUT
+        )
 
         if not ('/logout' in postResponse.text):
             raise Exception('Failed to connect with Rika Firenet')
@@ -114,16 +117,21 @@ class RikaFirenetCoordinator(DataUpdateCoordinator):
     def set_stove_controls(self, id, data):
         _LOGGER.info("set_stove_control() id: " + id + " data: " + str(data))
 
-        r = self._client.post('https://www.rika-firenet.com/api/client/' + id + '/controls', data)
+        try:
+            response = self._client.post(
+                'https://www.rika-firenet.com/api/client/' + id + '/controls',
+                data,
+                timeout=REQUEST_TIMEOUT,
+            )
+        except requests.RequestException as err:
+            _LOGGER.error('Failed to update controls: %s', err)
+            return False
 
-        for counter in range(0, 10):
-            if ('OK' in r.text) == True:
-                _LOGGER.info('Stove controls updated')
-                return True
-            else:
-                _LOGGER.info('In progress.. ({}/10)'.format(counter))
-                time.sleep(2)
+        if 'OK' in response.text:
+            _LOGGER.info('Stove controls updated')
+            return True
 
+        _LOGGER.warning('Unexpected stove control response: %s', response.text)
         return False
 
 
